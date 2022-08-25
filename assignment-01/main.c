@@ -13,5 +13,5 @@ void cleanup_module(void)
 }
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Hello");
+MODULE_DESCRIPTION("Hello World module");
 MODULE_AUTHOR("lumenthi");
