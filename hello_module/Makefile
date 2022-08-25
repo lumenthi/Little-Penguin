@@ -51,7 +51,10 @@ fclean: clean
 
 re: fclean all
 
-load: all
+run: all
+	@ echo "Installing $(MODULE)"
 	@ sudo insmod $(MODULE)
-	@ bash -c "trap 'trap SIGINT; sudo rmmod $(MODULE)' SIGINT; sudo tail -f /var/log/kern.log"
+	@ sudo dmesg | tail -1
+	@ echo "Removing $(MODULE)"
 	@ sudo rmmod $(MODULE)
+	@ sudo dmesg | tail -1
