@@ -3,7 +3,7 @@
 
 int init_module(void)
 {
-	printk(KERN_INFO "Hello world !\n");
+	printk(KERN_INFO "Hello keyboard !\n");
 	return 0;
 }
 
@@ -13,5 +13,5 @@ void cleanup_module(void)
 }
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Hello World module");
+MODULE_DESCRIPTION("Say hello USB keyboards");
 MODULE_AUTHOR("lumenthi");

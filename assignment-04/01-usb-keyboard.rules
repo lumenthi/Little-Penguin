@@ -1,0 +1,5 @@
+SUBSYSTEM=="usb",\
+ATTRS{bInterfaceClass}=="03",\
+ATTRS{bInterfaceSubClass}=="01",\
+ATTRS{bInterfaceProtocol}=="01",\
+ACTION=="add", RUN+="/usr/sbin/insmod /mnt/lfs/home/user/little-penguin/assignment-04/main.ko"
