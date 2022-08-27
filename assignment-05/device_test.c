@@ -9,14 +9,18 @@ void main(int argc, char **argv)
 	int fd = open("/dev/fortytwo", O_RDWR);
 	if (fd == -1)
 		return;
+	/* read test */
 	int i = 0;
 	int ret = 0;
-	while (i < 10) {
+	while (i < 9) {
 		bzero(&buf, sizeof(buf));
 		ret = read(fd, buf, 1);
 		i++;
 		printf("%s, ret: %d\n", buf, ret);
 	}
+	/* write test */
+	ret = write(fd, "lumenthi", 8);
+	printf("write ret: %d\n", ret);
 	close(fd);
 	return;
 }

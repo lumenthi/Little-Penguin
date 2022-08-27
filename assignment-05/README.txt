@@ -46,3 +46,24 @@ i, ret: 1
 
 $ sudo cat /dev/fortytwo
 lumenthi%
+
+=====================WRITE======================
+# Add pr_info("[*] Valid string, returning: %ld\n", size);
+# Before write return to check validity
+
+$ gcc device_test.c && sudo ./a.out
+write ret: 8
+
+$ sudo sh -c 'echo -n "lumenthi" > /dev/fortytwo'
+$ sudo dmesg
+[...]
+[12473.857238] [*] Valid string, returning: 8
+
+$ sudo sh -c 'echo -n "INVALID" > /dev/fortytwo'
+sh: line 0: echo: write error: Invalid argument
+
+====================LINUX CODING STYLE=====================
+./scripts/checkpatch.pl -f ../little-penguin/assignment-05/main.c
+total: 0 errors, 0 warnings, 79 lines checked
+
+../little-penguin/assignment-05/main.c has no obvious style problems and is ready for submission.
