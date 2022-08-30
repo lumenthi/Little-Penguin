@@ -1,4 +1,4 @@
-# To make it i checked the source code for /proc/mounts: (base.c/mountstats_open) https://elixir.bootlin.com/linux/latest/source/fs/proc_namespace.c#L242
+# To make it i checked the source code for /proc/mounts: (base.c/mountstats_open) https://elixir.bootlin.com/linux/v4.9/source/fs/proc_namespace.c#L235
 
 # First step is to get the filesystem's mount point with the function: static inline void get_fs_root(struct fs_struct *fs, struct path *root): https://elixir.bootlin.com/linux/latest/source/include/linux/fs_struct.h#L27
 get_fs_root(current->fs, &root);
