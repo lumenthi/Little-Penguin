@@ -51,7 +51,7 @@ struct mount {
 	int mnt_expiry_mark;		/* true if marked for expiry */
 	struct hlist_head mnt_pins;
 	struct hlist_head mnt_stuck_children;
-} __randomize_layout;
+};
 
 struct mnt_namespace {
 	struct ns_common	ns;
@@ -70,7 +70,7 @@ struct mnt_namespace {
 	u64 event;
 	unsigned int		mounts; /* # of mounts in the namespace */
 	unsigned int		pending_mounts;
-} __randomize_layout;
+};
 
 #define PROCFS_MAX_SIZE		1024
 #define PROCFS_NAME		"mymounts"
@@ -95,14 +95,22 @@ static ssize_t procfile_read(struct file *file, char __user *user_buffer,
 static int procfile_open(struct inode *inode, struct file *file)
 {
 	struct nsproxy *nsp;
-	struct mnt_namespace *ns;
+	struct mnt_namespace *mnt_ns;
+	struct fs_struct *fs_root;
 	struct mount *mnt_root;
 	struct path path_root;
 
 	pr_info("[*] Open procfile\n");
 
+	fs_root = current->fs;
+
 	nsp = current->nsproxy;
-	ns = nsp->mnt_ns;
+	mnt_ns = nsp->mnt_ns;
+
+	get_fs_root(fs_root, &path_root);
+
+	pr_info("[*] Mounts: %d\n", mnt_ns->mounts);
+	pr_info("[*] Name: %s\n", path_root.dentry->d_name.name);
 
 	return 0;
 }
