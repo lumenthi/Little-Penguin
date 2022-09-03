@@ -5,6 +5,7 @@
 #include <linux/proc_fs.h>
 #include <linux/mount.h>
 #include <linux/uaccess.h>
+#include <linux/slab.h>
 #include "main.h"
 
 #define PROCFS_MAX_SIZE		1024
@@ -18,14 +19,26 @@ static ssize_t procfile_read(struct file *file, char __user *user_buffer,
 	return 0;
 }
 
+static char *get_path(struct dentry *dentry)
+{
+	char		*ret;
+	uint64_t	rsize = PATH_MAX;
+
+	ret = kmalloc(rsize, GFP_KERNEL);
+	memset(ret, 0, rsize);
+	dentry_path(dentry, ret, rsize);
+
+	return ret;
+}
+
 static int procfile_open(struct inode *inode, struct file *file)
 {
 	struct nsproxy *nsp;
 	struct mnt_namespace *mnt_ns;
 	struct mount *mnt_current;
 	struct fs_struct *fs_root;
-	struct path path_root;
 	char *name;
+	char *path;
 
 	pr_info("[*] Open procfile\n");
 
@@ -36,16 +49,16 @@ static int procfile_open(struct inode *inode, struct file *file)
 
 	get_mnt_ns(mnt_ns);
 
-	get_fs_root(fs_root, &path_root);
-
-	pr_info("[*] Mounts: %d\n", mnt_ns->mounts);
-	pr_info("[*] Path: %s\n", path_root.dentry->d_name.name);
-
 	list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list) {
-		name = mnt_current->mnt_devname;
-		pr_info("[*] Name: %s\n", mnt_current->mnt_devname);
-		if (!name)
-			return 0;
+		if (mnt_current->mnt_mountpoint) {
+			name = (char*)mnt_current->mnt_devname;
+			// Kmalloc here
+			path = get_path(mnt_current->mnt_mountpoint);
+			pr_info("[*] Name: %s\n", name);
+			pr_info("[*] Path: %s\n", path);
+			pr_info("=================================================");
+			// Kfree here
+		}
 	}
 
 	return 0;
