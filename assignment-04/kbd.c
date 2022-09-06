@@ -9,7 +9,7 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-	printk(KERN_INFO "Cleaning up module.\n");
+	printk(KERN_INFO "Goodbye keyboard !\n");
 }
 
 MODULE_LICENSE("GPL");

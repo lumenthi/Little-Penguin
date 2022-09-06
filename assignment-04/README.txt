@@ -64,3 +64,8 @@ Aug 26 19:00:47 debian kernel: [  115.652986] main: loading out-of-tree module t
 Aug 26 19:00:47 debian kernel: [  115.653006] main: module verification failed: signature and/or required key missing - tainting kernel
 Aug 26 19:00:47 debian kernel: [  115.653045] Hello keyboard ! # Hello keyboard :)
 [...]
+
+# NOTES
+$ sudo udevadm trigger --verbose --action=add --subsystem-match=usb
+$ udevadm trigger --verbose --subsystem-match=usb --attr-match="bInterfaceClass=03" --attr-match="bInterfaceSubClass=01" --attr-match="bInterfaceProtocol=01" --action=add
+$ sudo udevadm test -a add /devices/pci0000:00/0000:00:06.0/usb1/1-0:1.0

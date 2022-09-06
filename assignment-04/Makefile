@@ -6,13 +6,14 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2021/02/05 00:47:55 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/06 12:48:01 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-.PHONY : all clean fclean re load
+.PHONY : all clean fclean re install uninstall
 
-NAME = main
+NAME = kbd
+RULE = 01-usb-keyboard.rules
 
 KERNEL = $(HOSTTYPE)
 
@@ -51,10 +52,13 @@ fclean: clean
 
 re: fclean all
 
-run: all
-	@ echo "Installing $(MODULE)"
-	@ sudo insmod $(MODULE)
-	@ sudo dmesg | tail -1
-	@ echo "Removing $(MODULE)"
-	@ sudo rmmod $(MODULE)
-	@ sudo dmesg | tail -1
+install: $(NAME)
+	@ sudo cp -v $(RULE) /etc/udev/rules.d/$(RULE)
+	@ sudo udevadm control --reload-rules
+	@ sudo mkdir -pv /usr/lib/modules
+	@ sudo cp -v $(MODULE) /usr/lib/modules/$(MODULE)
+
+uninstall: fclean
+	@ sudo rm -v /etc/udev/rules.d/$(RULE)
+	@ sudo rm -v /usr/lib/modules/$(MODULE)
+	@ sudo rmmod $(NAME)
