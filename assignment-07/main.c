@@ -13,7 +13,6 @@
 
 static struct dentry *folder;
 
-
 /* jiffies */
 
 char *jbuf = NULL;
@@ -61,7 +60,7 @@ const struct file_operations jiffies_fops = {
 	.release = jiffies_close
 };
 
-/* id file */
+/* id */
 
 static const char *login = "lumenthi";
 static const int login_len = 8;
@@ -92,6 +91,47 @@ const struct file_operations id_fops = {
 	.write = id_write,
 };
 
+/* foo */
+
+struct mutex fmutex;
+char *fbuf;
+unsigned int fsize = PAGE_SIZE;
+
+static ssize_t foo_read(struct file *file, char __user *user_buffer,
+			 size_t size, loff_t *offset)
+{
+	int ret = 0;
+
+	mutex_lock(&fmutex);
+	size = size > fsize ? fsize : size;
+	if (*offset >= fsize) {
+		mutex_unlock(&fmutex);
+		return ret;
+	}
+	ret = copy_to_user(user_buffer, fbuf + *offset, size);
+	*offset += size-ret;
+	mutex_unlock(&fmutex);
+	return size-ret;
+}
+
+static ssize_t foo_write(struct file *file, const char __user *user_buffer,
+			  size_t size, loff_t *offset)
+{
+	int ret = 0;
+
+	if (mutex_is_locked(&fmutex))
+		return -ETXTBSY;
+	size = size > fsize ? fsize : size;
+	memset(fbuf, 0, fsize);
+	ret = copy_from_user(fbuf, user_buffer, size);
+	return size-ret;
+}
+
+const struct file_operations foo_fops = {
+	.read = foo_read,
+	.write = foo_write
+};
+
 /* Operations */
 
 static int fortytwo_init(void)
@@ -103,8 +143,13 @@ static int fortytwo_init(void)
 		pr_err("[*] Can't create %s fortytwo folder\n", FOLD_NAME);
 		ret = -1;
 	}
+
+	mutex_init(&fmutex);
+	fbuf = kmalloc(fsize, GFP_KERNEL);
+
 	debugfs_create_file("id", 0666, folder, NULL, &id_fops);
 	debugfs_create_file("jiffies", 0444, folder, NULL, &jiffies_fops);
+	debugfs_create_file("foo", 0644, folder, NULL, &foo_fops);
 	return ret;
 }
 
@@ -112,6 +157,7 @@ static void fortytwo_exit(void)
 {
 	if (jbuf)
 		kfree(jbuf);
+	kfree(fbuf);
 	debugfs_remove_recursive(folder);
 	debugfs_remove(folder);
 }
