@@ -13,22 +13,62 @@
 
 static struct proc_dir_entry *proc_file;
 
+/* Buffer for path operations */
+static char pbuf[PATH_MAX];
+/* Return buffer */
+static unsigned int rsize;
+static char *rbuf;
+
 static ssize_t procfile_read(struct file *file, char __user *user_buffer,
 		      size_t size, loff_t *offset)
 {
-	return 0;
+	int ret = 0;
+
+	size = size > rsize ? rsize : size;
+	if (*offset >= rsize)
+		return ret;
+	ret = copy_to_user(user_buffer, rbuf + *offset, size);
+	*offset += size-ret;
+	return size-ret;
 }
 
-static char *get_path(struct dentry *dentry)
+static unsigned int total_size(struct mnt_namespace *mnt_ns)
 {
-	char		*ret;
-	uint64_t	rsize = PATH_MAX;
+	struct mount *mnt_current;
+	unsigned int ret = 0;
 
-	ret = kmalloc(rsize, GFP_KERNEL);
-	memset(ret, 0, rsize);
-	dentry_path(dentry, ret, rsize);
-
+	list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list) {
+		memset(pbuf, 0, sizeof(pbuf));
+		ret += strlen(mnt_current->mnt_devname);
+		ret += strlen(dentry_path(mnt_current->mnt_mountpoint, pbuf, sizeof(pbuf)));
+		ret += 2;
+	}
 	return ret;
+}
+
+static unsigned int get_name(const char *name, unsigned int offset)
+{
+	char *tmp = rbuf+offset;
+	unsigned int len = strlen(name);
+
+	strncpy(tmp, name, len);
+	tmp[len] = ' ';
+	return len+1;
+}
+
+static unsigned int get_path(struct dentry *dentry, unsigned int offset)
+{
+	char *path;
+	char *tmp = rbuf+offset;
+	unsigned int len;
+
+	memset(pbuf, 0, sizeof(pbuf));
+	path = dentry_path(dentry, pbuf, sizeof(pbuf));
+
+	len = strlen(path);
+	strncpy(tmp, path, len);
+	tmp[len] = '\n';
+	return len+1;
 }
 
 static int procfile_open(struct inode *inode, struct file *file)
@@ -36,37 +76,27 @@ static int procfile_open(struct inode *inode, struct file *file)
 	struct nsproxy *nsp;
 	struct mnt_namespace *mnt_ns;
 	struct mount *mnt_current;
-	struct fs_struct *fs_root;
-	char *name;
-	char *path;
-
-	pr_info("[*] Open procfile\n");
-
-	fs_root = current->fs;
+	unsigned int offset = 0;
 
 	nsp = current->nsproxy;
 	mnt_ns = nsp->mnt_ns;
-
 	get_mnt_ns(mnt_ns);
 
-	list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list) {
-		if (mnt_current->mnt_mountpoint) {
-			name = (char*)mnt_current->mnt_devname;
-			// Kmalloc here
-			path = get_path(mnt_current->mnt_mountpoint);
-			pr_info("[*] Name: %s\n", name);
-			pr_info("[*] Path: %s\n", path);
-			pr_info("=================================================");
-			// Kfree here
-		}
-	}
+	rsize = total_size(mnt_ns);
 
+	rbuf = kmalloc(rsize, GFP_KERNEL);
+
+	list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list) {
+		offset += get_name(mnt_current->mnt_devname, offset);
+		offset += get_path(mnt_current->mnt_mountpoint, offset);
+	}
 	return 0;
 }
 
 static int procfile_close(struct inode *inodep, struct file *filep)
 {
-	pr_info("[*] Close procfile\n");
+	kfree(rbuf);
+
 	return 0;
 }
 
@@ -79,7 +109,6 @@ static const struct file_operations proc_file_fops = {
 
 static int proc_init(void)
 {
-	printk(KERN_INFO "[*] Proc Module Constructor\n");
 	proc_file = proc_create(PROCFS_NAME, 0664, NULL, &proc_file_fops);
 	if (proc_file == NULL)
 		return -ENOMEM;
@@ -88,7 +117,6 @@ static int proc_init(void)
 
 static void proc_exit(void)
 {
-	printk(KERN_INFO "[*] Proc Module Destructor\n");
 	proc_remove(proc_file);
 }
 
