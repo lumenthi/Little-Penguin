@@ -9,14 +9,20 @@ static __always_inline struct task_struct *get_current(void)
 {
     return percpu_read_stable(current_task);
 }
-
 #define current get_current()
 [...]
 
-# This way we can get the root of our MNT namespace ('/')
-pr_info("[*] Root: %s\n", root.dentry->d_name.name);
+# From current (struct task_struct) we can reach nsproxy:
+# A structure that contains pointers to all per-process namespaces - fs (mount), uts, network, sysvipc, etc.
+# The list of available namespaces is available through nsproxy->mnt_ns
+nsp = current->nsproxy;
+mnt_ns = nsp->mnt_ns;
 
-# list_for_each_entry(pos, head, member);
+# To parse the list, we must use list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list)
+# This way we iterate through our mounts
+
+# I collect data for each entry then i store informations in buffer rbuf.
+# I return it when the user is reading my /proc entry
 
 ========================================Filesystem===============================================================
 

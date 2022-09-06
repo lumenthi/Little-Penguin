@@ -80,10 +80,8 @@ static int procfile_open(struct inode *inode, struct file *file)
 
 	nsp = current->nsproxy;
 	mnt_ns = nsp->mnt_ns;
-	get_mnt_ns(mnt_ns);
 
 	rsize = total_size(mnt_ns);
-
 	rbuf = kmalloc(rsize, GFP_KERNEL);
 
 	list_for_each_entry(mnt_current, &mnt_ns->list, mnt_list) {
@@ -96,7 +94,6 @@ static int procfile_open(struct inode *inode, struct file *file)
 static int procfile_close(struct inode *inodep, struct file *filep)
 {
 	kfree(rbuf);
-
 	return 0;
 }
 
