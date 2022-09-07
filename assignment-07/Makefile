@@ -6,11 +6,11 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2022/09/06 17:56:34 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/07 14:20:22 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-.PHONY : all clean fclean re load
+.PHONY : all clean fclean re load test
 
 NAME = main
 
@@ -55,3 +55,10 @@ load: all
 	sudo chown -R $(USER) /sys/kernel/debug
 	@ sudo insmod $(MODULE)
 	@ bash -c "trap 'trap SIGINT; sudo rmmod $(MODULE)' SIGINT; sudo tail -f /var/log/kern.log"
+
+test: all
+	sudo insmod $(MODULE) || true
+	gcc device_test.c
+	sudo ./a.out || true
+	rm a.out
+	@ sudo rmmod $(MODULE)

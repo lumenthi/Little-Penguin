@@ -101,10 +101,13 @@ static ssize_t foo_read(struct file *file, char __user *user_buffer,
 			 size_t size, loff_t *offset)
 {
 	int ret = 0;
+	/* Content size */
+	int csize = 0;
 
 	mutex_lock(&fmutex);
-	size = size > fsize ? fsize : size;
-	if (*offset >= fsize) {
+	csize = strnlen(fbuf, fsize);
+	size = size > csize ? csize : size;
+	if (*offset >= csize) {
 		mutex_unlock(&fmutex);
 		return ret;
 	}
@@ -155,6 +158,7 @@ static int fortytwo_init(void)
 
 	mutex_init(&fmutex);
 	fbuf = kmalloc(fsize, GFP_KERNEL);
+	memset(fbuf, 0, fsize);
 
 	if (!(debugfs_create_file("id", 0666, folder, NULL, &id_fops))) {
 		pr_err("[*] Can't create id file\n");
