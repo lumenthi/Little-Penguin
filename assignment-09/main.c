@@ -17,7 +17,7 @@ static struct proc_dir_entry *proc_file;
 static char pbuf[PATH_MAX];
 /* Return buffer */
 static unsigned int rsize;
-static char *rbuf;
+static char *rbuf = NULL;
 
 static ssize_t procfile_read(struct file *file, char __user *user_buffer,
 		      size_t size, loff_t *offset)
@@ -94,6 +94,7 @@ static int procfile_open(struct inode *inode, struct file *file)
 static int procfile_close(struct inode *inodep, struct file *filep)
 {
 	kfree(rbuf);
+	rbuf = NULL;
 	return 0;
 }
 
@@ -115,6 +116,8 @@ static int proc_init(void)
 static void proc_exit(void)
 {
 	proc_remove(proc_file);
+	if (rbuf)
+		kfree(rbuf);
 }
 
 module_init(proc_init);
