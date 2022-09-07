@@ -94,7 +94,7 @@ const struct file_operations id_fops = {
 /* foo */
 
 struct mutex fmutex;
-char *fbuf;
+char *fbuf = NULL;
 unsigned int fsize = PAGE_SIZE;
 
 static ssize_t foo_read(struct file *file, char __user *user_buffer,
@@ -119,11 +119,11 @@ static ssize_t foo_write(struct file *file, const char __user *user_buffer,
 {
 	int ret = 0;
 
-	if (mutex_is_locked(&fmutex))
-		return -ETXTBSY;
+	mutex_lock(&fmutex);
 	size = size > fsize ? fsize : size;
 	memset(fbuf, 0, fsize);
 	ret = copy_from_user(fbuf, user_buffer, size);
+	mutex_unlock(&fmutex);
 	return size-ret;
 }
 
@@ -134,32 +134,45 @@ const struct file_operations foo_fops = {
 
 /* Operations */
 
+static int clear(void)
+{
+	if (jbuf)
+		kfree(jbuf);
+	if (fbuf)
+		kfree(fbuf);
+	debugfs_remove_recursive(folder);
+	debugfs_remove(folder);
+	return -EIO;
+}
+
 static int fortytwo_init(void)
 {
-	int ret = 0;
-
 	folder = debugfs_create_dir(FOLD_NAME, NULL);
 	if (!folder) {
 		pr_err("[*] Can't create %s fortytwo folder\n", FOLD_NAME);
-		ret = -1;
+		return clear();
 	}
 
 	mutex_init(&fmutex);
 	fbuf = kmalloc(fsize, GFP_KERNEL);
 
-	debugfs_create_file("id", 0666, folder, NULL, &id_fops);
-	debugfs_create_file("jiffies", 0444, folder, NULL, &jiffies_fops);
-	debugfs_create_file("foo", 0644, folder, NULL, &foo_fops);
-	return ret;
+	if (!(debugfs_create_file("id", 0666, folder, NULL, &id_fops))) {
+		pr_err("[*] Can't create id file\n");
+		return clear();
+	}
+	if (!(debugfs_create_file("jiffies", 0444, folder, NULL, &jiffies_fops))) {
+		pr_err("[*] Can't create jiffies file\n");
+		return clear();
+	}
+	if (!(debugfs_create_file("foo", 0644, folder, NULL, &foo_fops))) {
+		return clear();
+	}
+	return 0;
 }
 
 static void fortytwo_exit(void)
 {
-	if (jbuf)
-		kfree(jbuf);
-	kfree(fbuf);
-	debugfs_remove_recursive(folder);
-	debugfs_remove(folder);
+	clear();
 }
 
 module_init(fortytwo_init);

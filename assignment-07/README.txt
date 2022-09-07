@@ -1,7 +1,3 @@
-
-
-
-
 ======================DEBUGFS=======================
 Debugfs exists as a simple way for kernel developers to make information available to user space.
 Unlike /proc, which is only meant for information about a process, or sysfs, which has strict one-value-per-file rules, debugfs has no rules at all.
@@ -17,6 +13,8 @@ struct dentry *debugfs_create_file(const char *name, mode_t mode,
 				       const struct file_operations *fops);
 
 void debugfs_remove(struct dentry *dentry);
+
+void debugfs_remove_recursive(struct dentry * dentry);
 
 =======================ASSIGNMENT============================
 • Take the kernel module you wrote for task 01, and modify it to be create a debugfs
@@ -40,3 +38,13 @@ memory allocated is freed.
 
 • Note: Besides the file’s rights, the debug directory itself need to be readable by
 everyone. There’s no option for that, so let’s use that old good chown !
+
+====================TEST=========================
+$ sudo sh -c 'echo "test" > /sys/kernel/debug/fortytwo/foo' && cat /sys/kernel/debug/fortytwo/foo
+test
+
+$ cat /sys/kernel/debug/fortytwo/jiffies
+429508285
+
+$ cat /sys/kernel/debug/fortytwo/id
+lumenthi
