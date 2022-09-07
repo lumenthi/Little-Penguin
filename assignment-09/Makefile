@@ -6,11 +6,11 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2022/09/06 14:03:04 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/07 15:52:26 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-.PHONY : all clean fclean re test
+.PHONY : all clean fclean re load test
 
 NAME = main
 
