@@ -1,0 +1,25 @@
+From 3c3fcfe9186ce7b7304e50a892600d158f578724 Mon Sep 17 00:00:00 2001
+From: toto <toto@toto.com>
+Date: Fri, 16 Sep 2022 18:30:38 +0200
+Subject: [PATCH] thor-kernel
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index a5e9d9388649..fe80cb2d07a8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@
+ VERSION = 6
+ PATCHLEVEL = 0
+ SUBLEVEL = 0
+-EXTRAVERSION = -rc5
++EXTRAVERSION = -thor_kernel
+ NAME = Hurr durr I'ma ninja sloth
+ 
+ # *DOCUMENTATION*
+-- 
+2.30.1
+

@@ -4,11 +4,12 @@ cd linux-X.XX
 
 # Change CONFIG_LOCALVERSION_AUTO
 ## Option 1:
-1. make menuconfig # Create config files
-2. On kernel config menu, go to general setup, enable "Automatically append version information to the version string"
+1. make defconfig # Generate config for current architecture
+2. make menuconfig # Edit config file
+3. On kernel config menu, go to general setup, enable "Automatically append version information to the version string"
 
 ## Option2:
-1. make menuconfig # Create config files
+1. make defconfig # Generate config for current architecture
 2. vim .config # To edit config
 3. append CONFIG_LOCALVERSION_AUTO=y
 
@@ -25,7 +26,7 @@ make # Compile the kernel
 ## Option 2: Directly boot to the new kernel via grub
 1. cp -iv arch/x86/boot/bzImage /boot/vmlinuz-X.XX # Kernel img
 2. cp -iv System.map /boot/System.map-X.XX # Kernel symbol table
-3. add a new entry in /etc/grub.d/40_custom # Check 40_custom
+3. add a new entry in /etc/grub.d/01_ft_linux # Check 01_ft_linux
 4. reboot and boot to the new kernel
 
 # Turn in files
