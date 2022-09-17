@@ -97,8 +97,8 @@ static inline void get_mnt_ns(struct mnt_namespace *ns)
 
 static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
 {
-	const char *dname = ACCESS_ONCE(name->name);
-	u32 dlen = ACCESS_ONCE(name->len);
+	const char *dname = READ_ONCE(name->name);
+	u32 dlen = READ_ONCE(name->len);
 	char *p;
 
 	smp_read_barrier_depends();

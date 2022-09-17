@@ -6,7 +6,7 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2022/08/27 12:32:15 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/17 14:56:37 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,3 +54,10 @@ re: fclean all
 load: all
 	@ sudo insmod $(MODULE)
 	@ bash -c "trap 'trap SIGINT; sudo rmmod $(MODULE)' SIGINT; sudo tail -f /var/log/kern.log"
+
+test: all
+	sudo insmod $(MODULE) || true
+	gcc device_test.c
+	sudo ./a.out || true
+	rm a.out
+	sudo rmmod $(MODULE)

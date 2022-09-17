@@ -6,11 +6,11 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2022/09/07 15:42:06 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/17 14:55:01 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-.PHONY : all clean fclean re run
+.PHONY : all clean fclean re test
 
 NAME = main
 
@@ -51,7 +51,7 @@ fclean: clean
 
 re: fclean all
 
-run: all
+test: all
 	@ echo "Installing $(MODULE)"
 	@ sudo insmod $(MODULE)
 	@ sudo dmesg | tail -1

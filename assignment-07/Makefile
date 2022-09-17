@@ -6,7 +6,7 @@
 #    By: lumenthi <lumenthi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2022/09/07 14:20:22 by lumenthi         ###   ########.fr        #
+#    Updated: 2022/09/17 15:06:05 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,8 +57,9 @@ load: all
 	@ bash -c "trap 'trap SIGINT; sudo rmmod $(MODULE)' SIGINT; sudo tail -f /var/log/kern.log"
 
 test: all
+	sudo mount -t debugfs none /sys/kernel/debug || true
 	sudo insmod $(MODULE) || true
 	gcc device_test.c
 	sudo ./a.out || true
 	rm a.out
-	@ sudo rmmod $(MODULE)
+	sudo rmmod $(MODULE)
