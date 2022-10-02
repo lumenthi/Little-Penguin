@@ -1,8 +1,5 @@
 # To make it i checked the source code for /proc/mounts: (base.c/mountstats_open) https://elixir.bootlin.com/linux/v4.9/source/fs/proc_namespace.c#L235
 
-# First step is to get the filesystem's mount point with the function: static inline void get_fs_root(struct fs_struct *fs, struct path *root): https://elixir.bootlin.com/linux/latest/source/include/linux/fs_struct.h#L27
-get_fs_root(current->fs, &root);
-
 # current is a pointer to the current process (i.e. the process that issued the system call): https://elixir.bootlin.com/linux/latest/source/arch/microblaze/include/asm/current.h#L23
 [...]
 static __always_inline struct task_struct *get_current(void)
@@ -14,7 +11,7 @@ static __always_inline struct task_struct *get_current(void)
 
 # From current (struct task_struct) we can reach nsproxy:
 # A structure that contains pointers to all per-process namespaces - fs (mount), uts, network, sysvipc, etc.
-# The list of available namespaces is available through nsproxy->mnt_ns
+# The list of available mount namespaces is available through nsproxy->mnt_ns
 nsp = current->nsproxy;
 mnt_ns = nsp->mnt_ns;
 
